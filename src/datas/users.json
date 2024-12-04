@@ -1,0 +1,11 @@
+[
+  {
+    "nom": "GARNIER",
+    "prenom": "Pierre",
+    "mail": "pg@it-and-you.fr",
+    "password": "Pg@250808$",
+    "admin": true,
+    "tiree": true,
+    "tirage": null
+  }
+]

@@ -1,0 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+
+
+:root {
+    --wh: #efefef;
+    --gr: #111111;
+    --pr: #9cdb2f;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: hidden;
+    font-family: "DM Sans", sans-serif;
+    background: var(--wh);
+    color: var(--gr);
+}
+
+.container {
+    width: 100%;
+    height: 100%;
+}
+
+
+.separator {
+    width: 80%;
+    height: 1px;
+    background: blacK;
+    margin: 30px auto;
+    opacity: 0.1;
+}
+
+
+
+
+
+.home-container {
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    padding: 20px 20px;
+    padding-top: 100px;
+}
+
+
+.home-container  h2 {
+    font-size: 25x;
+    font-weight: 900;
+}
+
+
+.home-container p {
+    font-size: 15px;
+    opacity: 0.7;
+}
+
+.home-container .content .buttons {
+    display: flex;
+    align-content: center;
+    gap: 0px 10px;
+    margin-top: 10px;
+}
+
+.home-container a {
+    font-size: 14px;
+    font-weight: 500;
+    background: var(--pr);
+    color: var(--gr);
+    text-decoration: none;
+    padding: 7px 20px;
+    border-radius: 4px;
+}
+
+.home-container a.logout-button {
+    background: var(--gr);
+    color: var(--wh);
+}
+
+.home-container a.admin-button {
+    background: rgba(0,0,0,0.05);
+    color: var(--gr);
+}

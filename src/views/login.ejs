@@ -1,0 +1,25 @@
+<%- include('./partials/head', {page: "login"}); %>
+
+<div class="login-container">
+    <div class="content">
+        <h2>Connexion</h2>
+        <% if (error) { %>
+            <div class="error-message">
+                <p><%= error %></p>
+            </div>
+        <% } %>
+        <form class="form" action="/auth/login" method="POST">
+            <div class="inputs">
+                <input type="text" name="email" placeholder="E-mail IT&You" required>
+                <input type="password" name="password" placeholder="Mot de passe" required>
+            </div>
+            <button class="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrow-right-short" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8"/>
+                  </svg>
+            </button>
+        </form>
+    </div>
+</div>
+
+<%- include('./partials/footer', {page: "login"}); %>

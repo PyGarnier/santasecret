@@ -1,0 +1,22 @@
+<%- include('./partials/head', {page: "home"}); %>
+
+<div class="home-container">
+    <div class="content">
+        <h2>Bienvenue, <%= user.prenom %> <%= user.nom %> !</h2>
+        <p><%= user.mail %></p>
+
+        <div class="buttons">
+
+            <a href="/tirage" class="button tirage-button">Accéder au tirage</a>
+            <% if(user.admin) { %>
+                <a href="/admin" class="button admin-button">Page admin</a>
+            <% } %>
+
+            
+            <a href="/auth/logout" class="button logout-button">Se déconnecter</a>
+        </div>
+        
+     </div>
+</div>
+
+<%- include('./partials/footer', {page: "home"}); %>

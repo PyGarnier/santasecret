@@ -1,0 +1,110 @@
+<%- include('./partials/head', {page: "tirage"}); %>
+
+
+<div class="tirage-container">
+<div class="content">
+    <a href="/" class="button home-button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-short" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5"/>
+          </svg>
+          Revenir à l'accueil
+        </a>
+    <div class="tirage">
+        <h1>Tirage au sort</h1>
+        <div id="display" class="display-box">
+            <% if (user.tirage) { %>
+                <%= user.tirage.nom %> <%= user.tirage.prenom %>
+            <% } else { %>
+                Nom en attente...
+            <% } %>
+        </div>
+        <button id="start-button" class="button" <%= user.tirage ? "disabled" : "" %>>Lancer le tirage</button>
+        <p id="result" class="result-text"></p>
+    </div>
+</div>
+</div>
+<script>
+    const user = JSON.parse('<%- JSON.stringify(user) %>');
+    let users = JSON.parse('<%- JSON.stringify(users) %>').filter(u => !u.tiree && u.mail !== user.mail);
+    const displayBox = document.getElementById("display");
+    const startButton = document.getElementById("start-button");
+    const resultText = document.getElementById("result");
+
+    if (user.tirage) {
+        // Si l'utilisateur a déjà tiré, désactiver le bouton
+        startButton.disabled = true;
+        resultText.textContent = `Vous avez tiré : ${user.tirage.nom} ${user.tirage.prenom}`;
+    }
+
+    let interval; // Intervalle pour changer les noms
+    let speed = 50; // Vitesse initiale en ms
+    let spinning = false;
+    let lastDisplayedIndex = null; // Pour éviter de répéter le même nom deux fois
+
+    function startDrawing() {
+        if (spinning || user.tirage) return; // Empêche de relancer si déjà en cours ou déjà tiré
+        spinning = true;
+
+        resultText.textContent = ""; // Réinitialise le résultat
+        speed = 50; // Vitesse initiale
+
+        interval = setInterval(() => {
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * users.length);
+            } while (randomIndex === lastDisplayedIndex); // Empêche d'afficher deux fois le même nom
+            lastDisplayedIndex = randomIndex;
+
+            const randomUser = users[randomIndex];
+            displayBox.textContent = `${randomUser.nom} ${randomUser.prenom}`;
+        }, speed);
+
+        let decelerationInterval = setInterval(() => {
+            if (speed > 300) {
+                clearInterval(decelerationInterval);
+                stopDrawing();
+            } else {
+                speed += 10;
+                clearInterval(interval);
+                interval = setInterval(() => {
+                    let randomIndex;
+                    do {
+                        randomIndex = Math.floor(Math.random() * users.length);
+                    } while (randomIndex === lastDisplayedIndex);
+                    lastDisplayedIndex = randomIndex;
+
+                    const randomUser = users[randomIndex];
+                    displayBox.textContent = `${randomUser.nom} ${randomUser.prenom}`;
+                }, speed);
+            }
+        }, 300);
+    }
+
+    async function stopDrawing() {
+        clearInterval(interval);
+        const randomIndex = Math.floor(Math.random() * users.length);
+        const winner = users[randomIndex];
+        displayBox.textContent = `${winner.nom} ${winner.prenom}`;
+
+        // Envoyer le tirage au backend
+        const response = await fetch('/tirage/draw', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ winnerMail: winner.mail }),
+        });
+
+        if (response.ok) {
+            resultText.textContent = `Félicitations, vous avez tiré : ${winner.nom} ${winner.prenom}`;
+            startButton.disabled = true;
+        } else {
+            resultText.textContent = `Erreur lors du tirage.`;
+        }
+
+        spinning = false;
+    }
+
+    startButton.addEventListener("click", startDrawing);
+</script>
+
+
+<%- include('./partials/footer', {page: "tirage"}); %>

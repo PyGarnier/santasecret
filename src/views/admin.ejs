@@ -1,0 +1,176 @@
+<%- include('./partials/head', {page: "admin"}); %>
+
+<div class="admin-container">
+    <div class="content">
+        <h1>Page de configuration</h1>
+        <p>Vous êtes connecté avec l'adresse e-mail : <%= user.mail %></p>
+        <div class="buttons">
+            <a href="/" class="button home-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-short" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5"/>
+                  </svg>
+                  Revenir à l'accueil
+                </a>
+            <a href="/auth/logout" class="button logout-button">Se déconnecter</a>
+        </div>
+
+
+        <div class="separator"></div>
+
+        <h2>Gestion des utilisateurs (  <%= users.length %>  ) :</h2>
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>E-mail</th>
+                    <th>Admin</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% users.forEach(u => { %>
+                <tr>
+                    <td><input type="text" value="<%= u.nom %>" class="edit-input" data-id="<%= u.mail %>" data-field="nom"></td>
+                    <td><input type="text" value="<%= u.prenom %>" class="edit-input" data-id="<%= u.mail %>" data-field="prenom"></td>
+                    <td><input type="text" value="<%= u.mail %>" class="edit-input" data-id="<%= u.mail %>" data-field="mail"></td>
+                    <td>
+                        <input type="checkbox" class="edit-input" data-id="<%= u.mail %>" data-field="admin" <%= u.admin ? "checked" : "" %>>
+                    </td>
+                    <td>
+                        <button class="delete-user" data-id="<%= u.mail %>">Supprimer</button>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+
+        <form id="add-user-form">
+            <h2>Ajouter un utilisateur :</h2>
+            <table class="user-table">
+                <tbody>
+                    <td><input type="text" name="nom" placeholder="Nom" required></td>
+                    <td><input type="text" name="prenom" placeholder="Prénom" required></td>
+                    <td><input type="email" name="mail" placeholder="E-mail" required></td>
+                    <td><input type="password" name="password" placeholder="Mot de passe" required></td>
+                    <td class="admin"><label>
+                        <input type="checkbox" name="admin"> Admin
+                    </label></td>
+                    <td class="add-user">
+                        <button type="submit">Ajouter</button>
+                    </td>
+                
+                
+                </tbody>
+            </table>
+            
+            
+            
+            
+            
+        </form>
+
+
+
+        <div class="separator"></div>
+
+
+        <div>
+            <h2>
+                Utilisateurs n'ayant pas tirés ( <%= users.filter(e => !e.tirage).length %> ) :
+            </h2>
+            <table class="user-table user-liste">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>E-mail</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% users.filter(e => !e.tirage).forEach(u => { %>
+                    <tr>
+                        <td><%= u.mail %></td>
+                        <td><%= u.prenom %></td>
+                        <td><%= u.mail %></td>
+                        
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+
+
+        <div class="separator"></div>
+
+        <div>
+            <h2>
+                Tirages ( <%= users.filter(e => e.tirage).length %> ) :
+            </h2>
+            <table class="user-table user-liste">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Tirage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% users.filter(e => e.tirage).forEach(u => { %>
+                    <tr>
+                        <td><%= u.nom %> <%= u.prenom %></td>
+                        <td><%= u.tirage?.nom %> <%= u.tirage?.prenom %></td>
+                        
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Supprimer un utilisateur
+    document.querySelectorAll('.delete-user').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            const id = e.target.getAttribute('data-id');
+            const res = await fetch('/admin/delete-user', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mail: id }),
+            });
+            if (res.ok) location.reload();
+        });
+    });
+
+    // Modifier un utilisateur
+    document.querySelectorAll('.edit-input').forEach(input => {
+        input.addEventListener('change', async (e) => {
+            const id = e.target.getAttribute('data-id');
+            const field = e.target.getAttribute('data-field');
+            const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+
+            await fetch('/admin/edit-user', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mail: id, field, value }),
+            });
+        });
+    });
+
+    // Ajouter un utilisateur
+    document.getElementById('add-user-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData.entries());
+        data.admin = formData.has('admin');
+
+        const res = await fetch('/admin/add-user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        });
+        if (res.ok) location.reload();
+    });
+</script>
+
+<%- include('./partials/footer', {page: "admin"}); %>
