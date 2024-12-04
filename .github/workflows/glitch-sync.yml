@@ -1,0 +1,22 @@
+name: Sync with Glitch
+
+on:
+  push:
+    branches:
+      - main # Synchronise avec la branche principale
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Sync with Glitch
+        env:
+          GLITCH_TOKEN: ${{ secrets.GLITCH_TOKEN }}
+        run: |
+          curl -X POST https://api.glitch.com/project/githubImport \
+          -H "Authorization: Bearer $GLITCH_TOKEN" \
+          -d "repo=tonnomutilisateur/tonprojet"
